@@ -308,13 +308,14 @@
           Leave your email and we'll let you know the day we start taking appointments.
         </p>
         <!-- Web3Forms: replace YOUR_ACCESS_KEY with the real key (same stack as STGD). -->
-        <form action="https://api.web3forms.com/submit" method="POST">
-          <input type="hidden" name="access_key" value="b48ade35-f870-45dd-b1df-0b51478c5cf5">
-          <input type="hidden" name="subject" value="LCGD pre-launch signup">
-          <label for="email" class="visually-hidden" style="position:absolute;left:-9999px;">Email address</label>
-          <input id="email" type="email" name="email" placeholder="you@example.com" required>
-          <button type="submit">Notify me</button>
-        </form>
+       <form action="https://api.web3forms.com/submit" method="POST">
+  <input type="hidden" name="access_key" value="b48ade35-f870-45dd-b1df-0b51478c5cf5">
+  <input type="hidden" name="subject" value="LCGD pre-launch signup">
+  <input type="hidden" name="redirect" value="https://lacrossegaragedoors.com/">
+  <label for="email" style="position:absolute;left:-9999px;">Email address</label>
+  <input id="email" type="email" name="email" placeholder="you@example.com" required>
+  <button type="submit">Notify me</button>
+</form>
         <p class="fineprint">One email when we open. Nothing else.</p>
       </div>
     </section>
