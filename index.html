@@ -265,6 +265,391 @@
     }
   </style>
 </head>
+
+
+<!-- ============================================================
+     La Crosse Garage Doors — DoorBot widget (v7)
+     Paste this whole block just before </body> in index.html.
+
+     BEFORE IT WORKS: set PROXY_URL below to your lacrosse-doorbot
+     val's URL (the web.val.run address). It's the ONLY required edit.
+
+     TRIGGERS (any of these opens the chat):
+       - the floating button (bottom-right), always present
+       - any link with href="#chat-with-us"
+       - any element with data-lcgd-chat="1"
+       - a postMessage of {type:'lcgd-open-chat'} (for iframe setups)
+     ============================================================ -->
+<script>
+/* DoorBot v7 — La Crosse Garage Doors */
+(function() {
+  // >>> REQUIRED: paste your lacrosse-doorbot val URL here <<<
+  var PROXY_URL = "https://REPLACE-WITH-YOUR-LACROSSE-DOORBOT-VAL-URL.web.val.run";
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+
+  function boot() {
+    if (document.getElementById("lcgd-db-fab")) return;
+    injectFonts();
+    injectStyles();
+    var els = buildWidget();
+    wireEvents(els);
+    scheduleAttention(els);
+  }
+
+  function injectFonts() {
+    var l1 = document.createElement("link");
+    l1.rel = "preconnect"; l1.href = "https://fonts.googleapis.com";
+    document.head.appendChild(l1);
+    var l2 = document.createElement("link");
+    l2.rel = "preconnect"; l2.href = "https://fonts.gstatic.com"; l2.crossOrigin = "anonymous";
+    document.head.appendChild(l2);
+    var l3 = document.createElement("link");
+    l3.rel = "stylesheet";
+    l3.href = "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap";
+    document.head.appendChild(l3);
+  }
+
+  function injectStyles() {
+    var css = ""
+      + ".lcgd-db-fab, .lcgd-db-panel, .lcgd-db-panel *, .lcgd-db-tooltip { box-sizing: border-box; font-family: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }"
+      + ".lcgd-db-fab { position: fixed; bottom: 20px; right: 20px; width: 64px; height: 64px; border-radius: 50%; background: #f2b705; color: #2a2200; border: none; cursor: pointer; box-shadow: 0 6px 18px rgba(31,40,51,0.28), 0 2px 4px rgba(0,0,0,0.12); z-index: 2147483646; display: flex; align-items: center; justify-content: center; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }"
+      + ".lcgd-db-fab:hover { transform: scale(1.06); background: #d99f00; box-shadow: 0 8px 22px rgba(31,40,51,0.32), 0 2px 6px rgba(0,0,0,0.15); }"
+      + ".lcgd-db-fab svg { width: 30px; height: 30px; }"
+      + "@keyframes lcgd-db-bounce-once { 0%, 100% { transform: translateY(0); } 15% { transform: translateY(-10px); } 30% { transform: translateY(0); } 45% { transform: translateY(-6px); } 60% { transform: translateY(0); } }"
+      + ".lcgd-db-fab-bouncing { animation: lcgd-db-bounce-once 1.4s ease-out 1; }"
+      + ".lcgd-db-tooltip { position: fixed; bottom: 34px; right: 96px; background: #1f2833; color: #fff; padding: 11px 14px 11px 16px; border-radius: 24px; font-size: 13px; font-weight: 700; letter-spacing: 0.8px; box-shadow: 0 6px 18px rgba(31,40,51,0.22), 0 2px 4px rgba(0,0,0,0.08); z-index: 2147483645; display: flex; align-items: center; gap: 10px; opacity: 0; transform: translateX(20px) scale(0.92); transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; white-space: nowrap; text-transform: uppercase; }"
+      + ".lcgd-db-tooltip-show { opacity: 1; transform: translateX(0) scale(1); pointer-events: auto; }"
+      + ".lcgd-db-tooltip-text { cursor: pointer; user-select: none; }"
+      + ".lcgd-db-tooltip-text strong { color: #f2b705; font-weight: 700; }"
+      + ".lcgd-db-tooltip::after { content: ''; position: absolute; right: -5px; top: 50%; transform: translateY(-50%) rotate(45deg); width: 12px; height: 12px; background: #1f2833; border-radius: 2px; z-index: -1; }"
+      + ".lcgd-db-tooltip-close { background: transparent; border: none; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 18px; line-height: 1; padding: 0 4px; margin-left: 2px; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; transition: color 0.15s, background 0.15s; }"
+      + ".lcgd-db-tooltip-close:hover { color: #fff; background: rgba(255,255,255,0.1); }"
+      + ".lcgd-db-panel { position: fixed; bottom: 96px; right: 20px; width: 380px; height: 580px; max-height: calc(100vh - 120px); background: #fff; border-radius: 16px; box-shadow: 0 16px 48px rgba(31,40,51,0.22), 0 4px 12px rgba(31,40,51,0.08); z-index: 2147483647; display: none; flex-direction: column; overflow: hidden; color: #23282e; font-size: 15px; line-height: 1.5; }"
+      + ".lcgd-db-panel.lcgd-db-open { display: flex; }"
+      + ".lcgd-db-header { background: #1f2833; color: #fff; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; }"
+      + ".lcgd-db-header-title { font-family: 'Barlow Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 0.6px; text-transform: uppercase; }"
+      + ".lcgd-db-header-title-accent { color: #f2b705; }"
+      + ".lcgd-db-header-sub { font-size: 12px; color: #9aa7b4; margin-top: 3px; font-weight: 400; }"
+      + ".lcgd-db-close { background: transparent; border: none; color: #fff; cursor: pointer; padding: 6px; border-radius: 6px; opacity: 0.8; transition: opacity 0.15s, background 0.15s; }"
+      + ".lcgd-db-close:hover { opacity: 1; background: rgba(255,255,255,0.1); }"
+      + ".lcgd-db-messages { flex: 1; overflow-y: auto; padding: 18px 16px; background: #f4f6f9; display: flex; flex-direction: column; }"
+      + ".lcgd-db-msg { margin-bottom: 12px; max-width: 85%; padding: 10px 14px; border-radius: 14px; word-wrap: break-word; white-space: pre-wrap; line-height: 1.45; }"
+      + ".lcgd-db-msg-bot { background: #fff; color: #23282e; border: 1px solid #e2e6e3; border-bottom-left-radius: 4px; align-self: flex-start; margin-right: auto; box-shadow: 0 1px 2px rgba(31,40,51,0.04); }"
+      + ".lcgd-db-msg-user { background: #2b3644; color: #fff; border-bottom-right-radius: 4px; margin-left: auto; }"
+      + ".lcgd-db-msg-img { max-width: 100%; border-radius: 8px; margin-top: 6px; display: block; }"
+      + ".lcgd-db-typing { display: inline-flex; gap: 4px; padding: 4px 0; }"
+      + ".lcgd-db-typing span { width: 7px; height: 7px; border-radius: 50%; background: #9aa7b4; animation: lcgd-db-typing-bounce 1.2s infinite; }"
+      + ".lcgd-db-typing span:nth-child(2) { animation-delay: 0.15s; }"
+      + ".lcgd-db-typing span:nth-child(3) { animation-delay: 0.3s; }"
+      + "@keyframes lcgd-db-typing-bounce { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }"
+      + ".lcgd-db-input-area { border-top: 1px solid #e2e6e3; padding: 12px; background: #fff; }"
+      + ".lcgd-db-photo-preview { display: none; align-items: center; gap: 10px; padding: 8px 12px; margin-bottom: 8px; background: rgba(242,183,5,0.12); border: 1px solid rgba(242,183,5,0.4); border-radius: 10px; font-size: 13px; color: #8a6d00; }"
+      + ".lcgd-db-photo-preview.lcgd-db-show { display: flex; }"
+      + ".lcgd-db-photo-preview img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }"
+      + ".lcgd-db-photo-remove { margin-left: auto; background: none; border: none; color: #8a6d00; cursor: pointer; font-size: 20px; line-height: 1; padding: 0 4px; font-weight: 600; }"
+      + ".lcgd-db-photo-remove:hover { color: #1f2833; }"
+      + ".lcgd-db-input-row { display: flex; align-items: flex-end; gap: 8px; }"
+      + ".lcgd-db-textarea { flex: 1; border: 1.5px solid #d6dde4; border-radius: 10px; padding: 10px 12px; font-size: 15px; resize: none; min-height: 40px; max-height: 120px; font-family: inherit; outline: none; color: #23282e; transition: border-color 0.15s; }"
+      + ".lcgd-db-textarea:focus { border-color: #2b3644; }"
+      + ".lcgd-db-textarea::placeholder { color: #99a4ad; }"
+      + ".lcgd-db-icon-btn { background: #fff; border: 1.5px solid #d6dde4; border-radius: 10px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #3a4750; flex-shrink: 0; transition: background 0.15s, border-color 0.15s, color 0.15s; }"
+      + ".lcgd-db-icon-btn:hover { background: #f4f6f9; border-color: #2b3644; color: #2b3644; }"
+      + ".lcgd-db-icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }"
+      + ".lcgd-db-send-btn { background: #f2b705; color: #2a2200; border-color: #f2b705; }"
+      + ".lcgd-db-send-btn:hover { background: #d99f00; border-color: #d99f00; color: #2a2200; }"
+      + ".lcgd-db-send-btn:disabled { background: #cdd5db; border-color: #cdd5db; color: #fff; }"
+      + ".lcgd-db-disclaimer { font-size: 11px; color: #6b7a85; text-align: center; margin-top: 8px; }"
+      + "@media (max-width: 480px) { .lcgd-db-panel { bottom: 0; right: 0; left: 0; width: 100%; height: 100%; max-height: 100vh; border-radius: 0; } .lcgd-db-fab { bottom: 16px; right: 16px; } .lcgd-db-tooltip { bottom: 28px; right: 88px; font-size: 12px; } }";
+
+    var styleEl = document.createElement("style");
+    styleEl.setAttribute("data-lcgd-db", "1");
+    styleEl.appendChild(document.createTextNode(css));
+    document.head.appendChild(styleEl);
+  }
+
+  function buildWidget() {
+    var fab = document.createElement("button");
+    fab.id = "lcgd-db-fab";
+    fab.className = "lcgd-db-fab";
+    fab.setAttribute("aria-label", "Open chat with La Crosse Garage Doors");
+    fab.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+
+    var tooltip = document.createElement("div");
+    tooltip.id = "lcgd-db-tooltip";
+    tooltip.className = "lcgd-db-tooltip";
+    tooltip.innerHTML = '<span class="lcgd-db-tooltip-text">Chat with us <strong>now</strong></span><button class="lcgd-db-tooltip-close" id="lcgd-db-tooltip-close" aria-label="Dismiss">&times;</button>';
+
+    var panel = document.createElement("div");
+    panel.id = "lcgd-db-panel";
+    panel.className = "lcgd-db-panel";
+    panel.setAttribute("role", "dialog");
+    panel.setAttribute("aria-label", "Chat with La Crosse Garage Doors");
+    panel.innerHTML = ''
+      + '<div class="lcgd-db-header">'
+      +   '<div>'
+      +     '<div class="lcgd-db-header-title">LA CROSSE <span class="lcgd-db-header-title-accent">GARAGE DOORS</span></div>'
+      // PHASE 2 (at launch): change sub to your live promise, e.g. "Same-day repair · evenings & weekends"
+      +     '<div class="lcgd-db-header-sub">Opening August 2026 &middot; leave your info</div>'
+      +   '</div>'
+      +   '<button class="lcgd-db-close" id="lcgd-db-close" aria-label="Close chat">'
+      +     '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+      +   '</button>'
+      + '</div>'
+      + '<div class="lcgd-db-messages" id="lcgd-db-messages"></div>'
+      + '<div class="lcgd-db-input-area">'
+      +   '<div class="lcgd-db-photo-preview" id="lcgd-db-photo-preview">'
+      +     '<img id="lcgd-db-photo-thumb" alt="Photo preview" />'
+      +     '<span>Photo attached</span>'
+      +     '<button class="lcgd-db-photo-remove" id="lcgd-db-photo-remove" aria-label="Remove photo">&times;</button>'
+      +   '</div>'
+      +   '<div class="lcgd-db-input-row">'
+      +     '<button class="lcgd-db-icon-btn" id="lcgd-db-attach" aria-label="Attach photo" title="Attach photo">'
+      +       '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>'
+      +     '</button>'
+      +     '<textarea class="lcgd-db-textarea" id="lcgd-db-input" rows="1" placeholder="Describe what is going on..." aria-label="Message"></textarea>'
+      +     '<button class="lcgd-db-icon-btn lcgd-db-send-btn" id="lcgd-db-send" aria-label="Send message">'
+      +       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>'
+      +     '</button>'
+      +   '</div>'
+      +   '<input type="file" id="lcgd-db-file" accept="image/*" style="display:none" />'
+      +   '<div class="lcgd-db-disclaimer">By chatting, your messages may be stored to help respond.</div>'
+      + '</div>';
+
+    document.body.appendChild(fab);
+    document.body.appendChild(tooltip);
+    document.body.appendChild(panel);
+
+    return {
+      fab: fab,
+      tooltip: tooltip,
+      tooltipText: tooltip.querySelector(".lcgd-db-tooltip-text"),
+      tooltipClose: tooltip.querySelector("#lcgd-db-tooltip-close"),
+      panel: panel,
+      closeBtn: panel.querySelector("#lcgd-db-close"),
+      messagesEl: panel.querySelector("#lcgd-db-messages"),
+      input: panel.querySelector("#lcgd-db-input"),
+      sendBtn: panel.querySelector("#lcgd-db-send"),
+      attachBtn: panel.querySelector("#lcgd-db-attach"),
+      fileInput: panel.querySelector("#lcgd-db-file"),
+      photoPreview: panel.querySelector("#lcgd-db-photo-preview"),
+      photoThumb: panel.querySelector("#lcgd-db-photo-thumb"),
+      photoRemove: panel.querySelector("#lcgd-db-photo-remove"),
+    };
+  }
+
+  function scheduleAttention(els) {
+    var engaged = false;
+    try { engaged = sessionStorage.getItem("lcgd-db-engaged") === "1"; } catch (_) {}
+    if (engaged) return;
+
+    els.tooltip.classList.add("lcgd-db-tooltip-show");
+
+    setTimeout(function() {
+      els.fab.classList.add("lcgd-db-fab-bouncing");
+      setTimeout(function() {
+        els.fab.classList.remove("lcgd-db-fab-bouncing");
+      }, 1500);
+    }, 500);
+  }
+
+  function dismissAttention(els) {
+    els.tooltip.classList.remove("lcgd-db-tooltip-show");
+    els.fab.classList.remove("lcgd-db-fab-bouncing");
+    try { sessionStorage.setItem("lcgd-db-engaged", "1"); } catch (_) {}
+  }
+
+  function wireEvents(els) {
+    var sessionId = "s_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
+    var messages = [];
+    var pendingPhoto = null;
+    var awaitingResponse = false;
+    var hasStarted = false;
+
+    els.fab.addEventListener("click", function() { dismissAttention(els); openPanel(); });
+    els.tooltipText.addEventListener("click", function() { dismissAttention(els); openPanel(); });
+    els.tooltipClose.addEventListener("click", function(e) {
+      e.stopPropagation();
+      dismissAttention(els);
+    });
+    els.closeBtn.addEventListener("click", closePanel);
+    els.sendBtn.addEventListener("click", handleSend);
+    els.attachBtn.addEventListener("click", function() { els.fileInput.click(); });
+    els.fileInput.addEventListener("change", handleFileSelect);
+    els.photoRemove.addEventListener("click", clearPhoto);
+    els.input.addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
+    });
+    els.input.addEventListener("input", function() {
+      els.input.style.height = "auto";
+      els.input.style.height = Math.min(els.input.scrollHeight, 120) + "px";
+    });
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && els.panel.classList.contains("lcgd-db-open")) closePanel();
+    });
+
+    // Cross-iframe trigger: postMessage {type:'lcgd-open-chat'} opens the chat
+    window.addEventListener("message", function(e) {
+      if (e.data && e.data.type === "lcgd-open-chat") {
+        dismissAttention(els);
+        openPanel();
+      }
+    });
+
+    // Global trigger: any link to #chat-with-us or element with data-lcgd-chat="1"
+    document.addEventListener("click", function(e) {
+      var target = e.target;
+      while (target && target !== document.body) {
+        if (target.getAttribute && (target.getAttribute("data-lcgd-chat") === "1" || (target.getAttribute("href") || "").indexOf("#chat-with-us") !== -1)) {
+          e.preventDefault();
+          e.stopPropagation();
+          dismissAttention(els);
+          openPanel();
+          return;
+        }
+        target = target.parentElement;
+      }
+    });
+
+    function openPanel() {
+      els.panel.classList.add("lcgd-db-open");
+      els.fab.style.display = "none";
+      els.input.focus();
+      if (!hasStarted) {
+        hasStarted = true;
+        messages.push({ role: "user", content: "(homeowner opened the chat widget)" });
+        callProxy();
+      }
+    }
+    function closePanel() {
+      els.panel.classList.remove("lcgd-db-open");
+      els.fab.style.display = "flex";
+    }
+
+    function handleSend() {
+      if (awaitingResponse) return;
+      var text = els.input.value.trim();
+      if (!text && !pendingPhoto) return;
+      var content;
+      if (pendingPhoto) {
+        content = [
+          { type: "image", source: { type: "base64", media_type: pendingPhoto.mediaType, data: pendingPhoto.base64 } },
+          { type: "text", text: text || "Here's a photo." },
+        ];
+        renderUserMessage(text || "Here's a photo.", pendingPhoto.dataUrl);
+      } else {
+        content = text;
+        renderUserMessage(text, null);
+      }
+      messages.push({ role: "user", content: content });
+      els.input.value = "";
+      els.input.style.height = "auto";
+      clearPhoto();
+      callProxy();
+    }
+
+    function callProxy() {
+      awaitingResponse = true;
+      els.sendBtn.disabled = true;
+      var typingEl = renderTypingIndicator();
+      fetch(PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: messages, session_id: sessionId }),
+      })
+        .then(function(res) { if (!res.ok) throw new Error("Server returned " + res.status); return res.json(); })
+        .then(function(data) {
+          typingEl.remove();
+          var botText = data.message || "Sorry, something went wrong on our end. Please try again in a moment.";
+          renderBotMessage(botText);
+          messages.push({ role: "assistant", content: botText });
+          if (data.handoff) renderSystemNote("Your info is on the way to La Crosse Garage Doors.");
+        })
+        .catch(function(err) {
+          console.error("[DoorBot]", err);
+          typingEl.remove();
+          renderBotMessage("Sorry, I'm having trouble connecting right now. Please try again in a moment, or leave your email on the site and we'll reach out.");
+        })
+        .finally(function() {
+          awaitingResponse = false;
+          els.sendBtn.disabled = false;
+        });
+    }
+
+    function renderBotMessage(text) {
+      var el = document.createElement("div");
+      el.className = "lcgd-db-msg lcgd-db-msg-bot";
+      el.textContent = text;
+      els.messagesEl.appendChild(el);
+      scrollToBottom();
+    }
+    function renderUserMessage(text, imageDataUrl) {
+      var el = document.createElement("div");
+      el.className = "lcgd-db-msg lcgd-db-msg-user";
+      if (text) {
+        var t = document.createElement("div");
+        t.textContent = text;
+        el.appendChild(t);
+      }
+      if (imageDataUrl) {
+        var img = document.createElement("img");
+        img.src = imageDataUrl;
+        img.className = "lcgd-db-msg-img";
+        img.alt = "Attached photo";
+        el.appendChild(img);
+      }
+      els.messagesEl.appendChild(el);
+      scrollToBottom();
+    }
+    function renderTypingIndicator() {
+      var el = document.createElement("div");
+      el.className = "lcgd-db-msg lcgd-db-msg-bot";
+      el.innerHTML = '<span class="lcgd-db-typing"><span></span><span></span><span></span></span>';
+      els.messagesEl.appendChild(el);
+      scrollToBottom();
+      return el;
+    }
+    function renderSystemNote(text) {
+      var el = document.createElement("div");
+      el.style.cssText = "text-align:center; font-size:12px; color:#6b7a85; padding:8px 0; font-style:italic;";
+      el.textContent = text;
+      els.messagesEl.appendChild(el);
+      scrollToBottom();
+    }
+    function scrollToBottom() { els.messagesEl.scrollTop = els.messagesEl.scrollHeight; }
+
+    function handleFileSelect(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      if (file.size > 8 * 1024 * 1024) { alert("Photo is too large. Please pick one under 8MB."); return; }
+      var reader = new FileReader();
+      reader.onload = function(ev) {
+        var dataUrl = ev.target.result;
+        pendingPhoto = {
+          base64: dataUrl.split(",")[1],
+          mediaType: file.type || "image/jpeg",
+          dataUrl: dataUrl,
+        };
+        els.photoThumb.src = dataUrl;
+        els.photoPreview.classList.add("lcgd-db-show");
+      };
+      reader.readAsDataURL(file);
+      els.fileInput.value = "";
+    }
+    function clearPhoto() {
+      pendingPhoto = null;
+      els.photoPreview.classList.remove("lcgd-db-show");
+      els.photoThumb.src = "";
+    }
+  }
+})();
+</script>
+
+  
 <body>
 
   <header class="hero">
