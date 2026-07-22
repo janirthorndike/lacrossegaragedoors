@@ -1,0 +1,235 @@
+/* ============================================================
+   La Crosse Garage Doors — shared site styles
+   Palette + type extend the existing homepage identity:
+   steel + shop-yellow, Barlow Condensed display / Barlow body.
+   Linked by every page: <link rel="stylesheet" href="style.css">
+   ============================================================ */
+
+:root {
+  --steel: #1f2833;
+  --panel: #2b3644;
+  --paper: #f7f8f6;
+  --galvanized: #9aa7b4;
+  --ink: #23282e;
+  --muted: #55606a;
+  --line: #e2e6e3;
+  --accent: #f2b705;
+  --accent-hover: #d99f00;
+  --accent-ink: #2a2200;
+  --max: 68rem;
+  --measure: 42rem;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Barlow', system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.65;
+  font-size: 1.0625rem;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4 {
+  font-family: 'Barlow Condensed', 'Barlow', sans-serif;
+  line-height: 1.06;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--steel);
+}
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 1.25rem; }
+
+/* ---------- Opening ribbon ---------- */
+.ribbon {
+  background: var(--steel);
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.5rem 1rem;
+}
+.ribbon strong { color: var(--accent); font-weight: 700; }
+.ribbon a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- Header + nav ---------- */
+.site-header {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; z-index: 100;
+}
+.site-header .wrap {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; padding-top: 0.7rem; padding-bottom: 0.7rem;
+}
+.brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; }
+.brand svg { width: 38px; height: 38px; flex-shrink: 0; }
+.brand-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; text-transform: uppercase; line-height: 0.95;
+  color: var(--steel); font-size: 1.15rem; letter-spacing: 0.02em;
+}
+.brand-name .lc { display: block; }
+.brand-name .gd { display: block; color: var(--muted); font-weight: 600; }
+
+.site-nav { display: flex; align-items: center; gap: 0.15rem; flex-wrap: wrap; }
+.site-nav a {
+  font-family: 'Barlow Condensed', sans-serif;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  font-size: 1rem; font-weight: 600; color: var(--steel);
+  text-decoration: none; padding: 0.4rem 0.6rem; border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.site-nav a:hover { background: rgba(31,40,51,0.06); }
+.site-nav a[aria-current="page"] { color: var(--accent-ink); background: var(--accent); }
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-block; font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: 1.05rem; text-decoration: none; cursor: pointer;
+  padding: 0.7rem 1.4rem; border-radius: 6px; border: 2px solid transparent;
+  transition: background 0.2s, filter 0.2s, border-color 0.2s;
+}
+.btn-primary { background: var(--accent); color: var(--accent-ink); }
+.btn-primary:hover { filter: brightness(0.95); }
+.btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,0.5); }
+.btn-ghost:hover { border-color: #fff; }
+.btn-dark { background: var(--steel); color: #fff; }
+.btn-dark:hover { background: #14202b; }
+
+/* ---------- Page hero (interior pages) ---------- */
+.page-hero {
+  background: var(--steel); color: #fff; position: relative; overflow: hidden;
+  padding: 3.5rem 0 3.75rem;
+}
+.page-hero::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 0.5rem;
+  background: repeating-linear-gradient(-45deg, var(--accent) 0 1.1rem, var(--steel) 1.1rem 2.2rem);
+}
+.page-hero .eyebrow { color: var(--accent); }
+.page-hero h1 {
+  color: #fff; font-size: clamp(2.1rem, 5.5vw, 3.4rem); font-weight: 700;
+  max-width: 20ch; margin-top: 0.4rem;
+}
+.page-hero .lede {
+  margin-top: 1rem; max-width: var(--measure); font-size: 1.15rem; color: #dfe5ea;
+}
+.page-hero .lede strong { color: #fff; }
+
+/* ---------- Eyebrow label ---------- */
+.eyebrow {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.9rem;
+  color: #8a6d00;
+}
+
+/* ---------- Content sections ---------- */
+section { padding: 3rem 0; }
+section.tight { padding: 2rem 0; }
+.prose { max-width: var(--measure); }
+.prose h2 { font-size: clamp(1.7rem, 4vw, 2.3rem); margin: 2rem 0 0.75rem; }
+.prose h3 { font-size: 1.35rem; margin: 1.5rem 0 0.5rem; }
+.prose p { margin-bottom: 1rem; }
+.prose ul { margin: 0 0 1rem 1.1rem; }
+.prose li { margin-bottom: 0.4rem; }
+.prose strong { color: var(--steel); }
+.prose a { color: #1f6f9c; text-underline-offset: 2px; }
+
+/* ---------- Callout ---------- */
+.callout {
+  border-left: 4px solid var(--accent); background: #fff;
+  border-radius: 0 8px 8px 0; padding: 1.1rem 1.25rem; margin: 1.5rem 0;
+  box-shadow: 0 1px 2px rgba(31,40,51,0.05);
+}
+.callout.warn { border-left-color: #c0392b; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* ---------- Service cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; margin-top: 1.5rem; }
+.card {
+  background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--accent);
+  padding: 1.3rem 1.2rem 1.4rem; border-radius: 0 0 6px 6px;
+}
+.card h3 { font-size: 1.25rem; margin-bottom: 0.4rem; }
+.card p { font-size: 0.98rem; color: var(--muted); margin: 0; }
+
+/* ---------- FAQ ---------- */
+.faq { max-width: var(--measure); margin-top: 1.5rem; }
+.faq details {
+  border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  padding: 0.4rem 1rem; margin-bottom: 0.7rem;
+}
+.faq summary {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 600; font-size: 1.2rem;
+  text-transform: uppercase; letter-spacing: 0.01em; color: var(--steel);
+  cursor: pointer; padding: 0.6rem 0; list-style: none; display: flex;
+  justify-content: space-between; align-items: center; gap: 1rem;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font-size: 1.5rem; color: var(--accent-ink); font-weight: 700; }
+.faq details[open] summary::after { content: "\2212"; }
+.faq details[open] summary { border-bottom: 1px solid var(--line); }
+.faq .faq-body { padding: 0.8rem 0 0.6rem; color: var(--ink); }
+.faq .faq-body p { margin-bottom: 0.6rem; }
+
+/* ---------- CTA band ---------- */
+.cta-band { background: var(--panel); color: #fff; text-align: center; }
+.cta-band h2 { color: #fff; font-size: clamp(1.7rem, 4vw, 2.3rem); }
+.cta-band p { max-width: 44ch; margin: 0.75rem auto 1.5rem; color: #dfe5ea; }
+
+/* ---------- Footer ---------- */
+.site-footer { background: #141a21; color: var(--galvanized); padding: 2.5rem 0 2rem; font-size: 0.95rem; }
+.site-footer .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 2rem; }
+.site-footer .brand-name { color: #fff; }
+.site-footer .brand-name .gd { color: var(--galvanized); }
+.site-footer h4 {
+  color: #fff; font-size: 1.05rem; letter-spacing: 0.04em; margin-bottom: 0.6rem;
+}
+.site-footer a { color: var(--galvanized); text-decoration: none; }
+.site-footer a:hover { color: #fff; }
+.site-footer ul { list-style: none; }
+.site-footer li { margin-bottom: 0.35rem; }
+.site-footer .foot-note {
+  border-top: 1px solid #26313b; margin-top: 2rem; padding-top: 1.25rem;
+  color: #6f7c88; font-size: 0.85rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 60rem) {
+  .cards { grid-template-columns: 1fr; }
+  .site-footer .foot-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 46rem) {
+  .site-header .wrap { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .site-nav { gap: 0; }
+  .site-nav a { padding: 0.35rem 0.5rem; font-size: 0.95rem; }
+  .site-footer .foot-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* ---------- Forms (install quote, etc.) ---------- */
+.lead-form { max-width: 40rem; margin-top: 1.5rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 1.1rem; }
+.field { display: flex; flex-direction: column; }
+.field.full { grid-column: 1 / -1; }
+.field label {
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.03em; font-size: 0.92rem;
+  color: var(--steel); margin-bottom: 0.3rem;
+}
+.field label .req { color: #c0392b; }
+.field input, .field select, .field textarea {
+  font-family: inherit; font-size: 1rem; color: var(--ink);
+  border: 1.5px solid #cfd6dd; border-radius: 8px; padding: 0.6rem 0.7rem;
+  background: #fff; outline: none; transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--panel); }
+.field textarea { resize: vertical; min-height: 5.5rem; }
+.form-actions { margin-top: 1.25rem; }
+.form-note { font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
+@media (max-width: 46rem) { .form-grid { grid-template-columns: 1fr; } }
