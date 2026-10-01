@@ -233,3 +233,23 @@ section.tight { padding: 2rem 0; }
 .form-actions { margin-top: 1.25rem; }
 .form-note { font-size: 0.85rem; color: var(--muted); margin-top: 0.6rem; }
 @media (max-width: 46rem) { .form-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Header click-to-call button ---------- */
+.site-nav a.nav-call {
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 700; border-radius: 6px; padding: 0.4rem 0.85rem; margin-left: 0.25rem;
+}
+.site-nav a.nav-call:hover { background: var(--accent); filter: brightness(0.95); }
+
+/* ---------- Pricing table ---------- */
+.price-table { max-width: 44rem; margin: 1.5rem 0 0.75rem; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#fff; }
+.price-row { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:0.9rem 1.1rem; border-bottom:1px solid var(--line); }
+.price-row:last-child { border-bottom:none; }
+.price-row > span:first-child { display:flex; flex-direction:column; }
+.price-row em { font-style:normal; font-size:0.85rem; color:var(--muted); margin-top:0.15rem; }
+.price-row > span:last-child { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:1.3rem; color:var(--steel); white-space:nowrap; }
+.price-head { background:var(--steel); }
+.price-head span { color:#fff !important; font-family:'Barlow Condensed',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; font-size:0.95rem; }
+.price-row.price-head > span:last-child { color:#fff; }
+.price-foot { max-width:44rem; font-size:0.9rem; color:var(--muted); margin-top:0.75rem; }
+@media (max-width:40rem){ .price-row > span:last-child { font-size:1.15rem; } }
